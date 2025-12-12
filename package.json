@@ -1,0 +1,43 @@
+{
+  "name": "faith",
+  "version": "1.0.0",
+  "description": "FAITH - Finance AI Tracker & Helper | AI-powered Finance Tracker with UPI Integration, Smart Budgeting & Investment Guidance",
+  "private": true,
+  "author": "Kaustubh Mukdam <your.email@example.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KaustubhMukdam/FAITH.git"
+  },
+  "workspaces": [
+    "apps/mobile",
+    "apps/web",
+    "packages/backend",
+    "packages/shared",
+    "packages/ml-models"
+  ],
+  "scripts": {
+    "install-all": "npm install",
+    "dev": "turbo run dev --parallel",
+    "dev:backend": "npm run dev --workspace=packages/backend",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "dev:mobile": "npm run dev --workspace=apps/mobile",
+    "build": "turbo run build",
+    "build:backend": "npm run build --workspace=packages/backend",
+    "build:web": "npm run build --workspace=apps/web",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "format": "turbo run format",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "setup-dev": "bash scripts/setup-dev.sh",
+    "db:migrate": "npm run migrate --workspace=packages/backend",
+    "db:seed": "npm run seed --workspace=packages/backend"
+  },
+  "devDependencies": {
+    "turbo": "^1.10.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=9.0.0"
+  }
+}
