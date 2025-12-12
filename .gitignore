@@ -9,6 +9,10 @@ node_modules/
 .env.development.local
 .env.test.local
 .env.production.local
+<<<<<<< HEAD
+=======
+venv
+>>>>>>> 94ee4ca (feat: initial monorepo setup with turbo, workspace structure, and env templates)
 
 # Logs
 npm-debug.log*
