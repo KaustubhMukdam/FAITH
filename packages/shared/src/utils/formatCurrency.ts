@@ -1,0 +1,12 @@
+export function formatCurrency(amount: number, currency: string = 'INR'): string {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount);
+}
+
+export function parseCurrency(formattedAmount: string): number {
+  return parseFloat(formattedAmount.replace(/[^0-9.-]+/g, ''));
+}
