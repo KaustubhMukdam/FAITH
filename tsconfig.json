@@ -1,0 +1,32 @@
+{
+  "extends": "@react-native/typescript-config/tsconfig.json",
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "commonjs",
+    "lib": ["es2017"],
+    "allowJs": true,
+    "jsx": "react-native",
+    "noEmit": true,
+    "isolatedModules": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["packages/mobile/src/*"],
+      "@components/*": ["packages/mobile/src/components/*"],
+      "@screens/*": ["packages/mobile/src/screens/*"],
+      "@navigation/*": ["packages/mobile/src/navigation/*"],
+      "@services/*": ["packages/mobile/src/services/*"],
+      "@store/*": ["packages/mobile/src/store/*"],
+      "@utils/*": ["packages/mobile/src/utils/*"],
+      "@types/*": ["packages/mobile/src/types/*"],
+      "@constants/*": ["packages/mobile/src/constants/*"]
+    }
+  },
+  "include": ["packages/mobile/src/**/*"],
+  "exclude": ["node_modules", "babel.config.js", "metro.config.js"]
+}

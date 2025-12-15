@@ -1,43 +1,54 @@
 {
-  "name": "faith",
+  "name": "faith-mobile",
   "version": "1.0.0",
-  "description": "FAITH - Finance AI Tracker & Helper | AI-powered Finance Tracker with UPI Integration, Smart Budgeting & Investment Guidance",
   "private": true,
-  "author": "Kaustubh Mukdam <your.email@example.com>",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/KaustubhMukdam/FAITH.git"
-  },
-  "workspaces": [
-    "apps/mobile",
-    "apps/web",
-    "packages/backend",
-    "packages/shared",
-    "packages/ml-models"
-  ],
   "scripts": {
-    "install-all": "npm install",
-    "dev": "turbo run dev --parallel",
-    "dev:backend": "npm run dev --workspace=packages/backend",
-    "dev:web": "npm run dev --workspace=apps/web",
-    "dev:mobile": "npm run dev --workspace=apps/mobile",
-    "build": "turbo run build",
-    "build:backend": "npm run build --workspace=packages/backend",
-    "build:web": "npm run build --workspace=apps/web",
-    "test": "turbo run test",
-    "lint": "turbo run lint",
-    "format": "turbo run format",
-    "clean": "turbo run clean && rm -rf node_modules",
-    "setup-dev": "bash scripts/setup-dev.sh",
-    "db:migrate": "npm run migrate --workspace=packages/backend",
-    "db:seed": "npm run seed --workspace=packages/backend"
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "start": "react-native start",
+    "test": "jest",
+    "lint": "eslint .",
+    "clean": "cd android && ./gradlew clean && cd ..",
+    "build:android": "cd android && ./gradlew assembleRelease",
+    "build:ios": "cd ios && xcodebuild -workspace FAITH.xcworkspace -scheme FAITH -configuration Release"
+  },
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.21.0",
+    "@react-navigation/bottom-tabs": "^6.5.11",
+    "@react-navigation/native": "^6.1.9",
+    "@react-navigation/native-stack": "^6.9.17",
+    "axios": "^1.6.2",
+    "date-fns": "^3.0.6",
+    "react": "18.2.0",
+    "react-native": "0.73.0",
+    "react-native-chart-kit": "^6.12.0",
+    "react-native-gesture-handler": "^2.14.1",
+    "react-native-permissions": "^4.0.3",
+    "react-native-reanimated": "^3.6.1",
+    "react-native-safe-area-context": "^4.8.2",
+    "react-native-screens": "^3.29.0",
+    "react-native-svg": "^14.1.0",
+    "react-native-vector-icons": "^10.0.3",
+    "zustand": "^4.4.7"
   },
   "devDependencies": {
-    "turbo": "^1.10.0"
+    "@babel/core": "^7.23.5",
+    "@babel/preset-env": "^7.23.5",
+    "@babel/runtime": "^7.23.5",
+    "@react-native/eslint-config": "^0.73.1",
+    "@react-native/metro-config": "^0.73.2",
+    "@react-native/typescript-config": "^0.73.1",
+    "@types/react": "^18.2.45",
+    "@types/react-native-vector-icons": "^6.4.18",
+    "@types/react-test-renderer": "^18.0.7",
+    "babel-jest": "^29.7.0",
+    "eslint": "^8.55.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.1.1",
+    "react-test-renderer": "18.2.0",
+    "typescript": "^5.3.3"
   },
   "engines": {
-    "node": ">=20.0.0",
-    "npm": ">=9.0.0"
+    "node": ">=18"
   }
 }
