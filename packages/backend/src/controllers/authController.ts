@@ -205,7 +205,7 @@ export class AuthController {
   // Get current user
   static async me(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.userId!;
+      const userId = req.user!.userId;
 
       const user = await UserService.findById(userId);
 
@@ -245,7 +245,7 @@ export class AuthController {
   // Logout user
   static async logout(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.userId!;
+      const userId = req.user!.userId;
 
       // Remove refresh token from Redis
       await redis.del(`refresh_token:${userId}`);
