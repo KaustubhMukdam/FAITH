@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit';
 import authRoutes from './routes/authRoutes';
 import transactionRoutes from './routes/transactionRoutes';
 import budgetRoutes from './routes/budgetRoutes';
+import accountRoutes from './routes/accountRoutes';
 import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
@@ -40,6 +41,7 @@ app.get('/health', (_req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/budgets', budgetRoutes);
+app.use('/api/accounts', accountRoutes);
 
 // 404 handler
 app.use((req, res) => {
