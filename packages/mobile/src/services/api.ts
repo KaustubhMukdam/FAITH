@@ -1,27 +1,24 @@
-import axios, { AxiosInstance } from 'axios';
-import * as SecureStore from 'expo-secure-store';
+import axios from 'axios';
+import { useAuthStore } from '../store/authStore';
 
-const API_URL = 'http://192.168.1.5:5000/api'; // Android emulator
-// const API_URL = 'http://localhost:5000/api'; // iOS simulator
-// const API_URL = 'https://your-api.com/api'; // Production
+const API_URL = 'http://192.168.1.5:3000'; // Replace with your IP
 
 class ApiService {
-  private api: AxiosInstance;
+  private client;
 
   constructor() {
-    this.api = axios.create({
+    this.client = axios.create({
       baseURL: API_URL,
-      timeout: 30000,
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
     // Request interceptor
-    this.api.interceptors.request.use(
-      async (config) => {
-        const token = await SecureStore.getItemAsync('accessToken');
-        if (token && config.headers) {
+    this.client.interceptors.request.use(
+      (config) => {
+        const token = useAuthStore.getState().token;
+        if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
@@ -30,7 +27,7 @@ class ApiService {
     );
 
     // Response interceptor
-    this.api.interceptors.response.use(
+    this.client.interceptors.response.use(
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
@@ -39,22 +36,22 @@ class ApiService {
           originalRequest._retry = true;
 
           try {
-            const refreshToken = await SecureStore.getItemAsync('refreshToken');
-            if (refreshToken) {
-              const response = await axios.post(`${API_URL}/auth/refresh`, {
-                refreshToken,
-              });
+            const refreshToken = useAuthStore.getState().refreshToken;
+            const response = await axios.post(`${API_URL}/api/auth/refresh`, {
+              refreshToken,
+            });
 
-              const { accessToken } = response.data.data.tokens;
-              await SecureStore.setItemAsync('accessToken', accessToken);
+            const { token: newToken } = response.data;
+            const { user, refreshToken: newRefreshToken } = useAuthStore.getState();
 
-              originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-              return this.api(originalRequest);
+            if (user) {
+              await useAuthStore.getState().setAuth(user, newToken, newRefreshToken || refreshToken);
             }
+
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return this.client(originalRequest);
           } catch (refreshError) {
-            await SecureStore.deleteItemAsync('accessToken');
-            await SecureStore.deleteItemAsync('refreshToken');
-            await SecureStore.deleteItemAsync('user');
+            useAuthStore.getState().logout();
             return Promise.reject(refreshError);
           }
         }
@@ -65,69 +62,47 @@ class ApiService {
   }
 
   // Auth
-  async register(data: any) {
-    const response = await this.api.post('/auth/register', data);
-    return response.data;
-  }
-
   async login(email: string, password: string) {
-    const response = await this.api.post('/auth/login', { email, password });
-    return response.data;
+    return this.client.post('/api/auth/login', { email, password });
   }
 
-  async logout() {
-    const response = await this.api.post('/auth/logout');
-    return response.data;
+  async register(name: string, email: string, password: string) {
+    return this.client.post('/api/auth/register', { name, email, password });
   }
 
   // Transactions
-  async getTransactions(filters?: any) {
-    const response = await this.api.get('/transactions', { params: filters });
-    return response.data;
+  async getTransactions(params?: any) {
+    return this.client.get('/api/transactions', { params });
+  }
+
+  async getTransactionSummary() {
+    return this.client.get('/api/transactions/summary');
   }
 
   async createTransaction(data: any) {
-    const response = await this.api.post('/transactions', data);
-    return response.data;
+    return this.client.post('/api/transactions', data);
   }
 
-  async getTransactionSummary(startDate?: string, endDate?: string) {
-    const response = await this.api.get('/transactions/summary', {
-      params: { startDate, endDate },
-    });
-    return response.data;
+  async deleteTransaction(id: number) {
+    return this.client.delete(`/api/transactions/${id}`);
   }
 
   // Budgets
   async getBudgets() {
-    const response = await this.api.get('/budgets');
-    return response.data;
-  }
-
-  async getBudgetByMonth(month: string) {
-    const response = await this.api.get(`/budgets/${month}`);
-    return response.data;
-  }
-
-  async getBudgetSpending(month: string) {
-    const response = await this.api.get(`/budgets/${month}/spending`);
-    return response.data;
+    return this.client.get('/api/budgets');
   }
 
   async createBudget(data: any) {
-    const response = await this.api.post('/budgets', data);
-    return response.data;
+    return this.client.post('/api/budgets', data);
   }
 
   // Accounts
-  async getLinkedAccounts() {
-    const response = await this.api.get('/accounts');
-    return response.data;
+  async getAccounts() {
+    return this.client.get('/api/accounts');
   }
 
   async linkAccount(data: any) {
-    const response = await this.api.post('/accounts', data);
-    return response.data;
+    return this.client.post('/api/accounts/link', data);
   }
 }
 

@@ -1,98 +1,87 @@
 import { create } from 'zustand';
 import * as SecureStore from 'expo-secure-store';
-import apiService from '../services/api';
 
 interface User {
-  id: string;
-  name: string;
+  id: number;
   email: string;
-  phone?: string;
+  name: string;
 }
 
 interface AuthState {
   user: User | null;
+  token: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  error: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (data: any) => Promise<void>;
+  setAuth: (user: User, token: string, refreshToken: string) => Promise<void>;
   logout: () => Promise<void>;
-  loadUser: () => Promise<void>;
-  clearError: () => void;
+  loadStoredAuth: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
+  token: null,
+  refreshToken: null,
   isAuthenticated: false,
-  isLoading: false,
-  error: null,
+  isLoading: true,
 
-  login: async (email: string, password: string) => {
-    set({ isLoading: true, error: null });
+  setAuth: async (user, token, refreshToken) => {
     try {
-      const response = await apiService.login(email, password);
-      const { user, tokens } = response.data;
-
-      await SecureStore.setItemAsync('accessToken', tokens.accessToken);
-      await SecureStore.setItemAsync('refreshToken', tokens.refreshToken);
+      await SecureStore.setItemAsync('token', token);
+      await SecureStore.setItemAsync('refreshToken', refreshToken);
       await SecureStore.setItemAsync('user', JSON.stringify(user));
-
-      set({ user, isAuthenticated: true, isLoading: false });
-    } catch (error: any) {
+      
       set({
-        error: error.response?.data?.error?.message || 'Login failed',
+        user,
+        token,
+        refreshToken,
+        isAuthenticated: true,
         isLoading: false,
       });
-      throw error;
-    }
-  },
-
-  register: async (data) => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await apiService.register(data);
-      const { user, tokens } = response.data;
-
-      await SecureStore.setItemAsync('accessToken', tokens.accessToken);
-      await SecureStore.setItemAsync('refreshToken', tokens.refreshToken);
-      await SecureStore.setItemAsync('user', JSON.stringify(user));
-
-      set({ user, isAuthenticated: true, isLoading: false });
-    } catch (error: any) {
-      set({
-        error: error.response?.data?.error?.message || 'Registration failed',
-        isLoading: false,
-      });
-      throw error;
+    } catch (error) {
+      console.error('Error storing auth data:', error);
     }
   },
 
   logout: async () => {
     try {
-      await apiService.logout();
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      await SecureStore.deleteItemAsync('accessToken');
+      await SecureStore.deleteItemAsync('token');
       await SecureStore.deleteItemAsync('refreshToken');
       await SecureStore.deleteItemAsync('user');
-      set({ user: null, isAuthenticated: false });
+      
+      set({
+        user: null,
+        token: null,
+        refreshToken: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+    } catch (error) {
+      console.error('Error clearing auth data:', error);
     }
   },
 
-  loadUser: async () => {
+  loadStoredAuth: async () => {
     try {
+      const token = await SecureStore.getItemAsync('token');
+      const refreshToken = await SecureStore.getItemAsync('refreshToken');
       const userStr = await SecureStore.getItemAsync('user');
-      const token = await SecureStore.getItemAsync('accessToken');
 
-      if (userStr && token) {
+      if (token && refreshToken && userStr) {
         const user = JSON.parse(userStr);
-        set({ user, isAuthenticated: true });
+        set({
+          user,
+          token,
+          refreshToken,
+          isAuthenticated: true,
+          isLoading: false,
+        });
+      } else {
+        set({ isLoading: false });
       }
     } catch (error) {
-      console.error('Load user error:', error);
+      console.error('Error loading stored auth:', error);
+      set({ isLoading: false });
     }
   },
-
-  clearError: () => set({ error: null }),
 }));
